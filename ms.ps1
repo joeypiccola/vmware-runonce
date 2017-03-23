@@ -9,4 +9,7 @@ New-MyFolder
 Set-FinRunOnce
 Stop-Transcript
 # reboot
-shutdown /r /t 60 /c "reboot post deployment"
+if ((Get-WmiObject -Class win32_computersystem).Manufacturer -eq 'VMware, Inc.')
+{
+    shutdown /r /t 60 /c "reboot post deployment"
+}
