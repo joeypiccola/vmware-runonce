@@ -1,11 +1,13 @@
 ﻿function New-MyFolder
 {
+    Write-Verbose "running new-myfolder"
     # something simple
     New-Item -ItemType Directory -Path c:\MyFolder
 }
 
 Function Rename-CDROM
 {
+    Write-Verbose "running rename-cdrom"
     $drive = gwmi win32_volume -Filter "DriveType = '5'"
     $drive.DriveLetter = "X:"
     $drive.put()
@@ -13,6 +15,7 @@ Function Rename-CDROM
 
 function Set-FinRunOnce
 {
+    Write-Verbose "running set-finrunonce"
     $RunOnceParams = @{
         Path         = "HKLM:\Software\Microsoft\Windows\CurrentVersion\RunOnce"
         Name         = "RebootNotify"
@@ -25,11 +28,13 @@ function Set-FinRunOnce
 
 function Remove-Deployment
 {
+    Write-Verbose "running running remove-deployment"
     Remove-Item -Force -Recurse 'C:\deploy\config'
 }
 
 function Reboot-System
 {
+    Write-Verbose "running reboot-system"
     # if this folder exists then assume MDT or SCCM built the server. Let the TS handle the reboot and auto logon (i.e. LogonCount)
     if (!(Test-Path -Path C:\MININT))
     {    
@@ -39,6 +44,7 @@ function Reboot-System
 
 function Set-KMS
 {
+    Write-Verbose "running set-kms"
     slmgr.vbs /skms mono.ad.piccola.us:1688
     slmgr.vbs /ato
 }
