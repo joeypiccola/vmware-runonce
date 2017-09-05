@@ -36,3 +36,9 @@ function Reboot-System
         shutdown /r /t 60 /c "Post Config Reboot..."
     }
 }
+
+function Set-KMS
+{
+    slmgr.vbs /skms mono.ad.piccola.us:1688
+    slmgr.vbs /ato
+}

@@ -4,6 +4,7 @@
 # base function calls
 Rename-CDROM
 New-MyFolder
+Set-KMS
 
 # clean up
 Set-FinRunOnce
