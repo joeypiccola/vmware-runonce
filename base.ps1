@@ -27,3 +27,12 @@ function Remove-Deployment
 {
     Remove-Item -Force -Recurse 'C:\deploy\config'
 }
+
+function Reboot-System
+{
+    # if this folder exists then assume MDT or SCCM built the server. Let the TS handle the reboot and auto logon (i.e. LogonCount)
+    if (!(Test-Path -Path C:\MININT))
+    {    
+        shutdown /r /t 60 /c "Post Config Reboot..."
+    }
+}
