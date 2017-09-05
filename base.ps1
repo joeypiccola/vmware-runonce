@@ -45,6 +45,6 @@ function Reboot-System
 function Set-KMS
 {
     Write-Verbose "running set-kms"
-    slmgr.vbs /skms mono.ad.piccola.us:1688
+    slmgr.vbs /skms mono.piccola.us:1688
     slmgr.vbs /ato
 }
