@@ -7,6 +7,8 @@ $secpasswd = ConvertTo-SecureString "joey" -AsPlainText -Force
 $CredRabbit = New-Object System.Management.Automation.PSCredential ("joey", $secpasswd)
 
 Send-RabbitMqMessage -ComputerName rabbitmq.ad.piccola.us -Exchange 'deployments' -Key 'vlanmoverequests' -Persistent -Credential $CredRabbit -InputObject "$env:computername"
+Uninstall-BaseModules
+Uninstall-BasePackages
 
 Remove-Deployment
 Stop-Transcript

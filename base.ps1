@@ -51,5 +51,15 @@ function Set-KMS
 
 function Install-BaseModules
 {
-    Install-Module -Name psrabbitmq
+    Install-Module -Name psrabbitmq -Confirm:$false -Force
+}
+
+function Uninstall-BaseModules
+{
+    Uninstall-Module -Name psrabbitmq -Confirm:$false -Force
+}
+
+function Uninstall-BasePackages
+{
+    choco uninstall git git.install -y
 }
