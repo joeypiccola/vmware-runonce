@@ -5,6 +5,7 @@
 Rename-CDROM
 New-MyFolder
 Set-KMS
+Install-BaseModules
 
 # clean up
 Set-FinRunOnce

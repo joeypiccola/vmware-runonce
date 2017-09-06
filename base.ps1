@@ -48,3 +48,8 @@ function Set-KMS
     slmgr.vbs /skms mono.piccola.us:1688
     slmgr.vbs /ato
 }
+
+function Install-BaseModules
+{
+    Install-Module -Name psrabbitmq
+}
