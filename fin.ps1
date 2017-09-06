@@ -1,5 +1,10 @@
 ﻿Start-Transcript  -Path C:\deploy\vmwaredeployment.txt -Append -Force
 . 'c:\deploy\config\base.ps1'
+
+#oh yea, creds
+$secpasswd = ConvertTo-SecureString "joey" -AsPlainText -Force
+$CredRabbit = New-Object System.Management.Automation.PSCredential ("joey", $secpasswd)
+
 Send-RabbitMqMessage -ComputerName rabbitmq.ad.piccola.us -Exchange 'deployments' -Key 'vlanmoverequests' -Persistent -Credential $CredRabbit -InputObject "$env:computername"
 
 Remove-Deployment
