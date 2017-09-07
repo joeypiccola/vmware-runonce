@@ -56,6 +56,8 @@ function Install-BaseModules
 
 function Uninstall-BaseModules
 {
+    # loop this at some point maybe
+    Remove-Module -Name psrabbitmq -Force
     Uninstall-Module -Name psrabbitmq -Confirm:$false -Force
 }
 
