@@ -65,3 +65,27 @@ function Uninstall-BasePackages
 {
     choco uninstall git git.install -y
 }
+
+function Update-Networking
+{
+    # import the json file
+    $netcfg_import = Get-Content -Path C:\deploy\netfcg.json | ConvertFrom-Json
+    # get the nic that currenlty has the DHCP address (need to imporve on this detection)
+    $nic = Get-WmiObject win32_networkadapterconfiguration |  ?{$_.dnshostname -ne $null}
+    # set static, gateway, netmase an dns
+    $nic.EnableStatic($netcfg_import.ip, $netcfg_import.netmask)
+    $nic.SetGateways($netcfg_import.gateway)
+    $nic.SetDNSServerSearchOrder($netcfg_import.dns)
+    # enable dyn dns registration and full dns registration
+    $nic.SetDynamicDNSRegistration($true)
+    $nic.FullDNSRegistrationEnabled
+    # get the nic again but in the networkadpater class (find it by the index from win32_networkadapterconfiguration
+    $net = Get-WmiObject win32_networkadapter | ?{$_.deviceid -eq $nic.index}
+    # disable \ enabled the nic
+    $net.Disable()
+    sleep -Seconds 5
+    $net.Enable()
+    sleep -Seconds 15
+    # register dns
+    ipconfig /registerdns
+}
