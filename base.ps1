@@ -69,7 +69,7 @@ function Uninstall-BasePackages
 function Update-Networking
 {
     # import the json file
-    $netcfg_import = Get-Content -Path C:\deploy\netfcg.json | ConvertFrom-Json
+    $netcfg_import = Get-Content -Path C:\deploy\netcfg.json | ConvertFrom-Json
     # get the nic that currenlty has the DHCP address (need to imporve on this detection)
     $nic = Get-WmiObject win32_networkadapterconfiguration |  ?{$_.dnshostname -ne $null}
     # set static, gateway, netmase an dns
