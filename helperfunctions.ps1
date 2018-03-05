@@ -89,111 +89,104 @@ function Update-Networking
     # register dns
     ipconfig /registerdns
 }
+Function Set-Disks
+{
+    param
+    (
+        [CmdletBinding()]
+        [Parameter(Mandatory)]
+        [PSCustomObject]$DisksConfig
+    )
 
-Function Configure-OfflineDisks
-{ 
- 
-    #Check for offline disks on server. 
-    $offlinedisk = "list disk" | diskpart | where {$_ -match "offline"} 
-     
-    #If offline disk(s) exist 
-    if($offlinedisk.count -eq 1) 
-    { 
-     
-        Write-Output "Following Offline disk(s) found..Trying to bring Online." 
-        $offlinedisk 
-         
-        #for all offline disk(s) found on the server 
-        foreach($offdisk in $offlinedisk) 
-        { 
-     
-            $offdiskS = $offdisk.Substring(2,6) 
-            Write-Output "Enabling $offdiskS" 
-#Creating command parameters for selecting disk, making disk online and setting off the read-only flag. 
-$OnlineDisk = @" 
-select $offdiskS
-attributes disk clear readonly
-online disk
-select $offdiskS
-clean
-convert gpt
-create partition primary
-format quick fs=ntfs label="Data" unit=4096
-assign letter="D"
-"@ 
-            #Sending parameters to diskpart 
-            $noOut = $OnlineDisk | diskpart 
-            sleep 5 
-     
-       } 
- 
-        #If selfhealing failed throw the alert. 
-        if(($offlinedisk = "list disk" | diskpart | where {$_ -match "offline"} )) 
-        { 
-         
-            Write-Output "Failed to bring the following disk(s) online" 
-            $offlinedisk 
- 
-        } 
-        else 
-        { 
-     
-            Write-Output "Disk(s) are now online." 
- 
-        } 
- 
-    }
-    elseif ($offlinedisk.count -gt 1)
-    {
-        Write-Output "Following Offline disk(s) found..Trying to bring Online." 
-        $offlinedisk 
-         
-        #for all offline disk(s) found on the server 
-        foreach($offdisk in $offlinedisk) 
-        { 
-     
-            $offdiskS = $offdisk.Substring(2,6) 
-            Write-Output "Enabling $offdiskS" 
-#Creating command parameters for selecting disk, making disk online and setting off the read-only flag. 
-$OnlineDisk = @" 
-select $offdiskS
-attributes disk clear readonly
-online disk
-select $offdiskS
-clean
-convert gpt
-create partition primary
-format quick fs=ntfs label="Data" unit=4096
-"@ 
-            #Sending parameters to diskpart 
-            $noOut = $OnlineDisk | diskpart 
-            sleep 5 
-     
-       } 
- 
-        #If selfhealing failed throw the alert. 
-        if(($offlinedisk = "list disk" | diskpart | where {$_ -match "offline"} )) 
-        { 
-         
-            Write-Output "Failed to bring the following disk(s) online" 
-            $offlinedisk 
- 
-        } 
-        else 
-        { 
-     
-            Write-Output "Disk(s) are now online." 
- 
-        }    
     
-    } 
- 
-    #If no offline disk(s) exist. 
-    else 
-    { 
- 
-        #All disk(s) are online. 
-        Write-Host "All disk(s) are online!" 
- 
-    } 
+    # get all the disks
+    $OfflineDisks = "list disk" | diskpart | where {$_ -match "offline"}
+    
+    # if we have disks then do stuff to them
+    if ($OfflineDisks.count -ge 1)
+    {
+        $i = 0
+        foreach ($disk in $OfflineDisks)
+        {
+            $diskID = $disk.Substring(2,6)
+            $CurrentDisk = $DisksConfig.disks[$i].split('.')
+            $letter = $CurrentDisk[2]
+            $label = if ($CurrentDisk[3] -eq '') {Write-Output 'Data'} else {Write-Output $CurrentDisk[3]}
+            $au = if ($CurrentDisk[4] -eq '') {Write-Output 4096} else {Write-Output $CurrentDisk[4]}
+            Set-DiskPart -Letter $letter -Label $label -AllocationUnit $au -DiskID $diskID -DiskProfile $DisksConfig.profile
+            $i++
+        }
+    }
+    else
+    {
+        Write-Host "No disks found."
+    }
+}
+
+Function Set-DiskPart
+{
+    param
+    (
+        [String]$Letter,
+        [String]$Label,
+        [String]$AllocationUnit,
+        [String]$DiskID,
+        [string]$DiskProfile
+    )
+
+    if ($Letter)
+    {
+$OnlineDisk = @" 
+select $DiskID
+attributes disk clear readonly
+online disk
+select $DiskID
+clean
+convert gpt
+create partition primary
+format quick fs=ntfs label="$label" unit=$AllocationUnit
+assign letter="$Letter"
+"@
+        #Sending parameters to diskpart 
+        $noOut = $OnlineDisk | diskpart 
+        sleep 5     
+    }
+    else
+    {
+        # no letter wasd connected, do we want to leave it as is or is this SQL and we want to mount it in the standard E:\
+        if ($DiskProfile -eq 'SQL')
+        {
+        New-Item -ItemType Directory -Path $Label
+$OnlineDisk = @" 
+select $DiskID
+attributes disk clear readonly
+online disk
+select $DiskID
+clean
+convert gpt
+create partition primary
+format quick fs=ntfs label="$Label" unit=$AllocationUnit
+assign mount=$Label
+"@
+        #Sending parameters to diskpart 
+        $noOut = $OnlineDisk | diskpart 
+        sleep 5
+        }
+        else
+        {
+$OnlineDisk = @" 
+select $DiskID
+attributes disk clear readonly
+online disk
+select $DiskID
+clean
+convert gpt
+create partition primary
+format quick fs=ntfs label="$label" unit=$AllocationUnit
+"@
+        #Sending parameters to diskpart 
+        $noOut = $OnlineDisk | diskpart 
+        sleep 5        
+        }
+    }
 }
