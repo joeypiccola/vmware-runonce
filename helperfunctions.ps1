@@ -75,7 +75,7 @@ function Update-Networking
     # set static, gateway, netmase an dns
     $nic.EnableStatic($netcfg_import.ip, $netcfg_import.netmask)
     $nic.SetGateways($netcfg_import.gateway)
-    $nic.SetDNSServerSearchOrder($netcfg_import.dns)
+    $nic.SetDNSServerSearchOrder($netcfg_import.dns_servers)
     # enable dyn dns registration and full dns registration
     $nic.SetDynamicDNSRegistration($true)
     $nic.FullDNSRegistrationEnabled
