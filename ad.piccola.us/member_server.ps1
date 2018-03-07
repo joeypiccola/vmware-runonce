@@ -6,11 +6,10 @@ Rename-CDROM
 New-MyFolder
 Set-KMS
 
-$diskconfig = Get-Content -Path c:\deploy\diskcfg.json
-if ($diskconfig -ne 'nodisks')
+$diskconfig = Get-Content -Path c:\deploy\diskcfg.json | ConvertFrom-Json
+if ($diskconfig.disks.count -gt 0)
 {
-    $diskjson = $diskconfig | ConvertFrom-Json
-    Set-Disks -DisksConfig $diskjson
+    Set-Disks -DisksConfig $diskconfig
 }
 
 # clean up

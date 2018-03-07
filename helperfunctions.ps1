@@ -109,17 +109,17 @@ Function Set-Disks
         foreach ($disk in $OfflineDisks)
         {
             $diskID = $disk.Substring(2,6)
-            $CurrentDisk = $DisksConfig.disks[$i].split('.')
-            $letter = $CurrentDisk[2]
-            $label = if ($CurrentDisk[3] -eq '') {Write-Output 'Data'} else {Write-Output $CurrentDisk[3]}
-            $au = if ($CurrentDisk[4] -eq '') {Write-Output 4096} else {Write-Output $CurrentDisk[4]}
+            $CurrentDisk = $DisksConfig.disks[$i]
+            $letter = $CurrentDisk.letter
+            $label = if ($CurrentDisk.label -eq '') {Write-Output 'Data'} else {Write-Output $CurrentDisk.label}
+            $au = if ($CurrentDisk.au -eq '') {Write-Output 4096} else {Write-Output $CurrentDisk.au}
             Set-DiskPart -Letter $letter -Label $label -AllocationUnit $au -DiskID $diskID -DiskProfile $DisksConfig.profile
             $i++
         }
     }
     else
     {
-        Write-Host "No disks found."
+        Write-Host "No local disks found."
     }
 }
 
