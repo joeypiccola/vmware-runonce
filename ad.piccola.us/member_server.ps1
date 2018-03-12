@@ -5,6 +5,7 @@
 Rename-CDROM
 New-MyFolder
 Set-KMS
+Uninstall-BasePackages
 
 $diskconfig = Get-Content -Path c:\deploy\diskcfg.json | ConvertFrom-Json
 if ($diskconfig.disks.count -gt 0)

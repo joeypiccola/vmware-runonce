@@ -86,8 +86,6 @@ function Update-Networking
     sleep -Seconds 5
     $net.Enable()
     sleep -Seconds 15
-    # register dns
-    ipconfig /registerdns
 }
 Function Set-Disks
 {
@@ -153,7 +151,7 @@ assign letter="$Letter"
     }
     else
     {
-        # no letter wasd connected, do we want to leave it as is or is this SQL and we want to mount it in the standard E:\
+        # no letter was detected, do we want to leave it as is or is this SQL and we want to mount it in the standard E:\
         if ($DiskProfile -eq 'SQL')
         {
         New-Item -ItemType Directory -Path $Label
@@ -189,4 +187,11 @@ format quick fs=ntfs label="$label" unit=$AllocationUnit
         sleep 5        
         }
     }
+}
+
+function Uninstall-Chocolatey
+{
+    Remove-Item -Recurse -Force "$env:ChocolateyInstall"
+    [System.Text.RegularExpressions.Regex]::Replace([Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Environment').GetValue('PATH', '', [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames).ToString(), [System.Text.RegularExpressions.Regex]::Escape("$env:ChocolateyInstall\bin") + '(?>;)?', '', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase) | %{[System.Environment]::SetEnvironmentVariable('PATH', $_, 'User')}
+    [System.Text.RegularExpressions.Regex]::Replace([Microsoft.Win32.Registry]::LocalMachine.OpenSubKey('SYSTEM\CurrentControlSet\Control\Session Manager\Environment\').GetValue('PATH', '', [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames).ToString(),  [System.Text.RegularExpressions.Regex]::Escape("$env:ChocolateyInstall\bin") + '(?>;)?', '', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase) | %{[System.Environment]::SetEnvironmentVariable('PATH', $_, 'Machine')}
 }
